@@ -9,11 +9,13 @@ from selenium.webdriver.support import expected_conditions
 from selenium.common import exceptions
 
 def create_webdriver_instance():
+    ''' General script to initiate Google Chrome Webdriver '''
     options = webdriver.ChromeOptions()
     driver = webdriver.Chrome(executable_path="C:\\Users\\anny_\\chromedriver", options=options)
     return driver
 
 def login_to_twitter(username, password, driver):
+    ''' Function to start Twitter login page and add the username + password credentials '''
     url = 'https://twitter.com/login'
     try:
         driver.get(url)
@@ -37,6 +39,7 @@ def login_to_twitter(username, password, driver):
     return True
 
 def find_search_input_and_enter_criteria(search_term, driver):
+    ''' Function to insert a key term on the search input area. '''
     xpath_search = '//input[@aria-label="Search query"]'
     search_input = driver.find_element_by_xpath(xpath_search)
     search_input.send_keys(search_term)
@@ -53,6 +56,7 @@ def generate_tweet_id(tweet):
     return ''.join(tweet)
 
 def scroll_down_page(driver, last_position, num_seconds_to_load=0.5, scroll_attempt=0, max_attempts=3):
+    ''' Function to scrolldown the page after a couple of tweets were already scraped '''
     end_of_scroll_region = False
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     sleep(num_seconds_to_load)
@@ -66,6 +70,7 @@ def scroll_down_page(driver, last_position, num_seconds_to_load=0.5, scroll_atte
     return last_position, end_of_scroll_region
 
 def save_tweet_data_to_csv(records, filepath, mode='a+'):
+    ''' Function to save the set of tweet into a .CSV file '''
     header = ['User', 'Handle', 'PostDate', 'TweetText', 'ReplyCount', 'RetweetCount', 'LikeCount']
     with open(filepath, mode=mode, newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
@@ -75,6 +80,7 @@ def save_tweet_data_to_csv(records, filepath, mode='a+'):
             writer.writerow(records)
 
 def collect_all_tweets_from_current_view(driver, lookback_limit=3):
+    ''' Function to scrape all tweets visible on current screen '''
     page_cards = driver.find_elements_by_xpath('//div[@data-testid="tweet"]')
     if len(page_cards) <= lookback_limit:
         return page_cards
@@ -82,6 +88,7 @@ def collect_all_tweets_from_current_view(driver, lookback_limit=3):
         return page_cards[-lookback_limit:]
 
 def extract_data_from_current_tweet_card(card):
+    ''' Function to scrape specific elements on each tweet '''
     try:
         user = card.find_element_by_xpath('.//span').text
     except exceptions.NoSuchElementException:
